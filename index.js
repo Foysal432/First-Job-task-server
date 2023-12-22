@@ -24,14 +24,46 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+// create collection
+const addtask =client.db('FirstJobTaskDb').collection('addtask');
+// add task related 
+app.get('/addtask',async(req,res)=>{
+  const result =await addtask.find().toArray();
+  res.send(result)
+})
+app.post('/addtask', async(req,res)=>{
+  const task =req.body;
+  console.log(task);
+  const result = await addtask.insertOne(task)
+  res.send(result);
+})
+// get userbased task
+app.get('/addtask/:email',async(req,res)=>{
+  const email = req.params.email;
+  const query ={email:email}
+  const user = addtask.find(query);
+  const result = await user.toArray() 
+  res.send(result)
+})
+// deleted task
+app.delete('/addtask/:id', async (req, res)=>{
+  const id =req.params.id;
+  const query ={ _id: new ObjectId(id) }
+  const result = await addtask.deleteOne(query);
+  res.send(result);
+})
+
+
+
+
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
